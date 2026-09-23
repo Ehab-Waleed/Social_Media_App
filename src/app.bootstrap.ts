@@ -5,6 +5,8 @@ import helmet from "helmet";
 import cors from "cors";
 import { PORT } from "./config/config.service";
 import AppError from "./common/middleware/globalErrHandler.middleware";
+import userRouter from "./modules/auth/auth.controller";
+import connectionDB from "./DB/connectionDB";
 
 const app: Application = express();
 const port: number = PORT;
@@ -21,9 +23,13 @@ const bootstrap = async () => {
 
   app.use(cors(), helmet(), limiter, express.json());
 
+  await connectionDB();
+
   app.get("/", (req: Request, res: Response, next: NextFunction) => {
     res.status(200).json({ message: "Welcome on my Social Media App ^^" });
   });
+
+  app.use("/users", userRouter);
 
   app.use("{/*demo}", (req: Request, res: Response, next: NextFunction) => {
     throw new AppError(

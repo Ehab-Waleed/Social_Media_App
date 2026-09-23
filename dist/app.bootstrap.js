@@ -9,6 +9,8 @@ const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
 const config_service_1 = require("./config/config.service");
 const globalErrHandler_middleware_1 = __importDefault(require("./common/middleware/globalErrHandler.middleware"));
+const auth_controller_1 = __importDefault(require("./modules/auth/auth.controller"));
+const connectionDB_1 = __importDefault(require("./DB/connectionDB"));
 const app = (0, express_1.default)();
 const port = config_service_1.PORT;
 const bootstrap = async () => {
@@ -20,9 +22,11 @@ const bootstrap = async () => {
         skipFailedRequests: true,
     });
     app.use((0, cors_1.default)(), (0, helmet_1.default)(), limiter, express_1.default.json());
+    await (0, connectionDB_1.default)();
     app.get("/", (req, res, next) => {
         res.status(200).json({ message: "Welcome on my Social Media App ^^" });
     });
+    app.use("/users", auth_controller_1.default);
     app.use("{/*demo}", (req, res, next) => {
         throw new globalErrHandler_middleware_1.default(`Url: ${req.originalUrl} With Method: ${req.method} Not Found`, 404);
     });
